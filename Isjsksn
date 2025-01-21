@@ -1,0 +1,39 @@
+function CreateSlapAura()
+    local slapAuraScript = game:HttpGet("https://raw.githubusercontent.com/David-crycop/Slap-aura/refs/heads/main/Slap-aura")
+    loadstring(slapAuraScript)()
+
+    local SlapAura = false
+    local lastClickTime = 0
+    local SlapAuraCooldown = 1000000
+    local Range = 50
+
+    -- Function that implements "Slap Aura" logic
+    local function ExecuteSlapAura()
+        if SlapAura then return end
+        if tick() - lastClickTime < SlapAuraCooldown then return end
+
+        SlapAura = true
+
+        for _, v in pairs(game.Players:GetChildren()) do
+            if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                if v.Character:FindFirstChild("entered") and not v.Character:FindFirstChild("rock") then
+                    local Magnitude = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude
+                    if Magnitude <= Range then
+                        game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game.ReplicatedStorage.Slap, game.Players.LocalPlayer.Character.Humanoid):Play()
+                        gloveHits[game.Players.LocalPlayer.leaderstats.Glove.Value]:FireServer(v.Character.HumanoidRootPart, true)
+                    end
+                end
+            end
+        end
+
+        lastClickTime = tick()
+        SlapAura = false
+    end
+
+    -- Triggered automatically via Heartbeat event
+    game:GetService("RunService").Heartbeat:Connect(function()
+        ExecuteSlapAura()
+    end)
+end
+
+CreateSlapAura()
